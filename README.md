@@ -1,16 +1,68 @@
-# React + Vite
+# whyCampus
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A student dashboard for organising university life in one place: courses, weekly schedule, notes, tasks, materials, assignments, exams and a calendar. Built with React and Vite.
 
-Currently, two official plugins are available:
+> Currently a front-end only app. All data is mock data held in React state, so changes reset on page reload.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Dashboard**: overview of today's classes, tasks and upcoming deadlines
+- **Schedule** and **Calendar**: weekly timetable and calendar view
+- **Courses**: course list and per-course detail pages
+- **Notes**: create notes per course (via a course selector), edit, delete, sorted by last update
+- **Tasks**, **Assignments**, **Exams**, **Materials**: track work and resources
+- **Command menu**: press `Cmd/Ctrl + K` to jump around quickly
+- **Dark / light mode** and a **Settings** page
+- Responsive layout with a mobile navigation bar
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech stack
 
-## Expanding the Oxlint configuration
+- [React 19](https://react.dev) and [Vite](https://vite.dev)
+- [lucide-react](https://lucide.dev) icons
+- [canvas-confetti](https://github.com/catdad/canvas-confetti) for celebrations
+- [Oxlint](https://oxc.rs) for linting
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Getting started
+
+Requires Node.js 18+ (a current LTS is recommended).
+
+```bash
+git clone <repo-url>
+cd whyCampus
+npm install
+npm run dev
+```
+
+Then open the URL Vite prints (usually http://localhost:5173).
+
+## Scripts
+
+| Command           | Description                          |
+| ----------------- | ------------------------------------ |
+| `npm run dev`     | Start the dev server with HMR        |
+| `npm run build`   | Create a production build in `dist/` |
+| `npm run preview` | Serve the production build locally   |
+| `npm run lint`    | Lint the project with Oxlint         |
+
+## Project structure
+
+```
+src/
+├── App.jsx              # App shell, global state, tab routing
+├── main.jsx             # Entry point
+├── index.css, App.css   # Styles
+├── components/          # One component per view (Dashboard, Notes, Tasks, ...)
+└── data/mockData.js     # Sample user, courses, schedule, notes, tasks, exams
+```
+
+Navigation is handled by a `currentTab` state in `App.jsx` rather than a router.
+
+## Customising the data
+
+Edit [src/data/mockData.js](src/data/mockData.js) to change the user profile, courses, weekly schedule and the initial notes, tasks, materials, assignments and exams. Dates are generated relative to today, so the sample data always looks current.
+
+## Roadmap ideas
+
+- Persist data (localStorage or a backend)
+- Real "current class" detection from the system clock
+- Authentication and multi-user support

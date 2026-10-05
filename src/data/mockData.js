@@ -1,4 +1,18 @@
-// src/data/mockData.js
+// Helper functions to generate system-relative dynamic dates
+export const getRelativeDateStr = (offsetDays = 0) => {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+export const getRelativeFormattedDate = (offsetDays = 0) => {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+};
 
 export const INITIAL_USER = {
   name: "Ömer",
@@ -23,7 +37,7 @@ export const COURSES = [
     instructor: "Schoer Amber",
     room: "Room 2.05 / 2.02",
     credits: 4,
-    color: "#9FFF00",
+    color: "#D4D4D4",
     schedule: [
       { day: "Monday", time: "10:00 – 13:00", room: "Room 2.05", type: "Lecture", instructor: "Schoer Amber" },
       { day: "Wednesday", time: "12:00 – 15:00", room: "Room 2.02", type: "Seminar", instructor: "Schoer Amber" }
@@ -309,60 +323,60 @@ export const INITIAL_TASKS = [
     title: "Finish EAP reading",
     description: "Read assigned journal article on scholarly discourse synthesis",
     completed: false,
-    dueDate: "2026-10-05",
+    dueDate: getRelativeDateStr(0),
     dueTime: "18:00",
     priority: "high",
     courseId: "eap101",
-    createdAt: "2026-10-01T10:00:00.000Z",
-    updatedAt: "2026-10-01T10:00:00.000Z"
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   },
   {
     id: "task_2",
     title: "Review algebra",
     description: "Practice vector problem sets and linear systems",
     completed: false,
-    dueDate: "2026-10-05",
+    dueDate: getRelativeDateStr(0),
     dueTime: "20:00",
     priority: "medium",
     courseId: "mss103",
-    createdAt: "2026-10-01T11:00:00.000Z",
-    updatedAt: "2026-10-01T11:00:00.000Z"
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   },
   {
     id: "task_3",
     title: "Prepare presentation",
     description: "Draft slides for Academic & Study Skills seminar",
     completed: false,
-    dueDate: "2026-10-06",
+    dueDate: getRelativeDateStr(1),
     dueTime: "14:00",
     priority: "high",
     courseId: "ass102",
-    createdAt: "2026-10-01T12:00:00.000Z",
-    updatedAt: "2026-10-01T12:00:00.000Z"
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   },
   {
     id: "task_4",
     title: "Email university administration",
     description: "Confirm enrollment documentation for semester 1",
     completed: false,
-    dueDate: "2026-10-08",
+    dueDate: getRelativeDateStr(3),
     dueTime: "12:00",
     priority: "low",
     courseId: null,
-    createdAt: "2026-10-02T09:00:00.000Z",
-    updatedAt: "2026-10-02T09:00:00.000Z"
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   },
   {
     id: "task_5",
     title: "Buy notebook",
     description: "Grid paper notebook for Maths Study Skills formulas",
     completed: true,
-    dueDate: "2026-10-02",
+    dueDate: getRelativeDateStr(-2),
     dueTime: "16:00",
     priority: "low",
     courseId: "mss103",
-    createdAt: "2026-09-30T10:00:00.000Z",
-    updatedAt: "2026-10-02T15:00:00.000Z"
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }
 ];
 
@@ -378,7 +392,7 @@ export const INITIAL_MATERIALS = [
     week: "Week 01",
     size: "2.4 MB",
     type: "PDF Document",
-    uploadDate: "22 Sep 2026",
+    uploadDate: getRelativeFormattedDate(-14),
     url: "#"
   },
   {
@@ -389,7 +403,7 @@ export const INITIAL_MATERIALS = [
     week: "Week 01",
     size: "1.2 MB",
     type: "PDF Reading",
-    uploadDate: "23 Sep 2026",
+    uploadDate: getRelativeFormattedDate(-13),
     url: "#"
   },
   {
@@ -400,7 +414,7 @@ export const INITIAL_MATERIALS = [
     week: "Week 02",
     size: "890 KB",
     type: "PDF Document",
-    uploadDate: "29 Sep 2026",
+    uploadDate: getRelativeFormattedDate(-7),
     url: "#"
   },
   {
@@ -411,7 +425,7 @@ export const INITIAL_MATERIALS = [
     week: "Week 01",
     size: "3.1 MB",
     type: "PDF Document",
-    uploadDate: "20 Sep 2026",
+    uploadDate: getRelativeFormattedDate(-15),
     url: "#"
   },
   {
@@ -422,7 +436,7 @@ export const INITIAL_MATERIALS = [
     week: "Week 01",
     size: "1.5 MB",
     type: "PDF Sheet",
-    uploadDate: "21 Sep 2026",
+    uploadDate: getRelativeFormattedDate(-14),
     url: "#"
   }
 ];
@@ -433,8 +447,8 @@ export const INITIAL_ASSIGNMENTS = [
     title: "Academic Writing Task 01 - Literature Synthesis",
     courseId: "eap101",
     courseName: "English for Academic Purposes 1",
-    dueDate: "2026-10-14",
-    formattedDue: "Due 14 October 2026",
+    dueDate: getRelativeDateStr(9),
+    formattedDue: `Due ${getRelativeFormattedDate(9)}`,
     status: "In Progress",
     weight: "20% of total grade",
     description: "Write a 1,200-word critical synthesis comparing three scholarly journal articles on academic integrity and modern technological tools.",
@@ -456,8 +470,8 @@ export const INITIAL_ASSIGNMENTS = [
     title: "Study Portfolio & Reflection 01",
     courseId: "ass102",
     courseName: "Academic and Study Skills",
-    dueDate: "2026-10-22",
-    formattedDue: "Due 22 October 2026",
+    dueDate: getRelativeDateStr(17),
+    formattedDue: `Due ${getRelativeFormattedDate(17)}`,
     status: "In Progress",
     weight: "15% of total grade",
     description: "Document your weekly time audit and analyze personal productivity bottlenecks using Pomodoro and time-blocking frameworks.",

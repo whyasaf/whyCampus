@@ -80,8 +80,31 @@ export default function App() {
     setIsCourseSelectorOpen(true);
   };
 
+  // Fetch notes from SQLite database on mount
+  useEffect(() => {
+    fetch('http://localhost:3001/api/notes')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setNotes(data);
+        } else {
+          // If DB is empty, seed with initial mock notes
+          fetch('http://localhost:3001/api/notes/seed', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ notes: INITIAL_NOTES })
+          })
+            .then(() => setNotes(INITIAL_NOTES))
+            .catch(err => console.error('Seed error:', err));
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch from SQLite backend, falling back to initial data:', err);
+      });
+  }, []);
+
   // Step 2: User selects course in Modal -> create note assigned to that course
-  const handleCreateNoteForCourse = (courseId) => {
+  const handleCreateNoteForCourse = async (courseId) => {
     const courseObj = courses.find(c => c.id === courseId) || courses[0];
     const nowIso = new Date().toISOString();
     
@@ -101,6 +124,16 @@ export default function App() {
       content: `# ${courseObj.name}\n\nInstructor: ${courseObj.instructor}\nDate: ${d.toLocaleDateString()}\n\n## Lecture Notes\n\nStart typing here...`
     };
 
+    try {
+      await fetch('http://localhost:3001/api/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newNote)
+      });
+    } catch (err) {
+      console.error('Failed to save new note to SQLite:', err);
+    }
+
     setNotes(prev => [newNote, ...prev]);
     setSelectedNoteId(newNote.id);
     setSelectedCourseIdFilter(courseObj.id); // Filter notes by selected course
@@ -108,16 +141,32 @@ export default function App() {
   };
 
   // Save Note & update timestamp for DESC sorting
-  const handleSaveNote = (updatedNote) => {
+  const handleSaveNote = async (updatedNote) => {
     setNotes(prev => prev.map(n => n.id === updatedNote.id ? updatedNote : n));
+    try {
+      await fetch('http://localhost:3001/api/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedNote)
+      });
+    } catch (err) {
+      console.error('Failed to update note in SQLite:', err);
+    }
   };
 
-  const handleDeleteNote = (noteId) => {
+  const handleDeleteNote = async (noteId) => {
     setNotes(prev => prev.filter(n => n.id !== noteId));
     if (selectedNoteId === noteId) {
       const remaining = notes.filter(n => n.id !== noteId);
       if (remaining.length > 0) setSelectedNoteId(remaining[0].id);
       else setSelectedNoteId(null);
+    }
+    try {
+      await fetch(`http://localhost:3001/api/notes/${noteId}`, {
+        method: 'DELETE'
+      });
+    } catch (err) {
+      console.error('Failed to delete note from SQLite:', err);
     }
   };
 
