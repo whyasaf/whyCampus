@@ -37,7 +37,14 @@ export default function App() {
   const [user, setUser] = useState(INITIAL_USER);
   const [courses, setCourses] = useState(COURSES);
   const [schedule, setSchedule] = useState(REAL_WEEKLY_SCHEDULE);
-  const [notes, setNotes] = useState(INITIAL_NOTES);
+  const [notes, setNotes] = useState(() => {
+    try {
+      const saved = localStorage.getItem('whycampus_notes');
+      return saved ? JSON.parse(saved) : INITIAL_NOTES;
+    } catch (e) {
+      return INITIAL_NOTES;
+    }
+  });
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [materials, setMaterials] = useState(INITIAL_MATERIALS);
   const [assignments, setAssignments] = useState(INITIAL_ASSIGNMENTS);
@@ -47,6 +54,15 @@ export default function App() {
   const [selectedCourseId, setSelectedCourseId] = useState('eap101');
   const [selectedCourseIdFilter, setSelectedCourseIdFilter] = useState('All');
   const [selectedNoteId, setSelectedNoteId] = useState(null);
+
+  // Save notes to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('whycampus_notes', JSON.stringify(notes));
+    } catch (e) {
+      console.error('Failed to save notes to localStorage:', e);
+    }
+  }, [notes]);
 
   // Toggle Dark/Light class on html document element
   useEffect(() => {
@@ -80,26 +96,31 @@ export default function App() {
     setIsCourseSelectorOpen(true);
   };
 
-  // Fetch notes from SQLite database on mount
+  // Fetch notes from SQLite database on mount if available
   useEffect(() => {
     fetch('http://localhost:3001/api/notes')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Server returned error status');
+        return res.json();
+      })
       .then(data => {
         if (data && data.length > 0) {
           setNotes(data);
         } else {
-          // If DB is empty, seed with initial mock notes
+          // If DB is empty, seed with current notes
+          const savedLocal = localStorage.getItem('whycampus_notes');
+          const notesToSeed = savedLocal ? JSON.parse(savedLocal) : INITIAL_NOTES;
           fetch('http://localhost:3001/api/notes/seed', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ notes: INITIAL_NOTES })
+            body: JSON.stringify({ notes: notesToSeed })
           })
-            .then(() => setNotes(INITIAL_NOTES))
+            .then(() => setNotes(notesToSeed))
             .catch(err => console.error('Seed error:', err));
         }
       })
       .catch(err => {
-        console.error('Failed to fetch from SQLite backend, falling back to initial data:', err);
+        console.warn('SQLite backend unreachable, running with localStorage persistence:', err);
       });
   }, []);
 
@@ -124,6 +145,11 @@ export default function App() {
       content: `# ${courseObj.name}\n\nInstructor: ${courseObj.instructor}\nDate: ${d.toLocaleDateString()}\n\n## Lecture Notes\n\nStart typing here...`
     };
 
+    setNotes(prev => [newNote, ...prev]);
+    setSelectedNoteId(newNote.id);
+    setSelectedCourseIdFilter(courseObj.id); // Filter notes by selected course
+    setCurrentTab('notes');
+
     try {
       await fetch('http://localhost:3001/api/notes', {
         method: 'POST',
@@ -133,11 +159,6 @@ export default function App() {
     } catch (err) {
       console.error('Failed to save new note to SQLite:', err);
     }
-
-    setNotes(prev => [newNote, ...prev]);
-    setSelectedNoteId(newNote.id);
-    setSelectedCourseIdFilter(courseObj.id); // Filter notes by selected course
-    setCurrentTab('notes');
   };
 
   // Save Note & update timestamp for DESC sorting
